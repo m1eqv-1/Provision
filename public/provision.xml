@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Yealink Phone Provisioning File
+  Served via DHCP Option 66
+
+  PLACEHOLDERS TO REPLACE:
+    - YOUR-SERVER-IP   : IP/hostname of this provisioning server
+    - YOUR-PROV-SERVER : URL of the subscriber provisioning server
+      e.g. http://192.168.1.50/ or http://provisioning.example.com/
+-->
+<yealinkconfig>
+
+  <!-- ═══════════════════════════════════════════════
+       NETWORK: IPv4 only, IPv6 disabled
+  ═══════════════════════════════════════════════ -->
+  <NETWORK>
+    <IPv6_ENABLE perm="" value="0"/>
+  </NETWORK>
+
+  <!-- ═══════════════════════════════════════════════
+       VOICE: Ringer volume (scale 0–15, set to 2)
+  ═══════════════════════════════════════════════ -->
+  <VOICE>
+    <RING_VOL perm="" value="2"/>
+  </VOICE>
+
+  <!-- ═══════════════════════════════════════════════
+       PHONE DISPLAY: Desktop wallpaper
+       Upload an image via the web interface, then
+       update the path below with the returned URL.
+  ═══════════════════════════════════════════════ -->
+  <PHONE_SETTING>
+    <BACKGROUNDS perm="" path="http://YOUR-SERVER-IP:3000/uploads/wallpaper.jpg"/>
+  </PHONE_SETTING>
+
+  <!-- ═══════════════════════════════════════════════
+       AUTO-PROVISIONING: Redirect to subscriber server
+       The phone will fetch its full subscriber config
+       (accounts, SIP, etc.) from this server.
+  ═══════════════════════════════════════════════ -->
+  <AUTOPROVISION>
+    <SERVER perm="" url="http://YOUR-PROV-SERVER/" user="" password=""/>
+  </AUTOPROVISION>
+
+</yealinkconfig>
