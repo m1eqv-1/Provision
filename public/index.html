@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yealink Provisioning — Wallpaper Upload</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .card {
+      background: #1a1d27;
+      border: 1px solid #2d3148;
+      border-radius: 12px;
+      padding: 2rem;
+      width: 100%;
+      max-width: 540px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #f0f4ff;
+      margin-bottom: 0.25rem;
+    }
+
+    .subtitle {
+      font-size: 0.85rem;
+      color: #64748b;
+      margin-bottom: 2rem;
+    }
+
+    label.section {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #94a3b8;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Drop zone */
+    .drop-zone {
+      border: 2px dashed #2d3148;
+      border-radius: 8px;
+      padding: 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+    .drop-zone:hover,
+    .drop-zone.drag-over {
+      border-color: #4f6ef7;
+      background: rgba(79,110,247,0.05);
+    }
+    .drop-zone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+    .drop-zone .icon {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+    .drop-zone .hint {
+      font-size: 0.85rem;
+      color: #64748b;
+    }
+    .drop-zone .hint strong {
+      color: #4f6ef7;
+    }
+
+    /* Preview */
+    #preview-wrap {
+      display: none;
+      margin-bottom: 1.5rem;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #2d3148;
+      position: relative;
+    }
+    #preview-wrap img {
+      display: block;
+      width: 100%;
+      max-height: 200px;
+      object-fit: cover;
+    }
+    #preview-wrap .remove-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(0,0,0,0.6);
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      cursor: pointer;
+      font-size: 1rem;
+      line-height: 28px;
+      text-align: center;
+    }
+    #preview-wrap .remove-btn:hover { background: #e53e3e; }
+
+    /* Button */
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary {
+      background: #4f6ef7;
+      color: #fff;
+    }
+    .btn-primary:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .btn-primary:not(:disabled):hover { opacity: 0.9; }
+
+    /* Status */
+    #status {
+      display: none;
+      margin-top: 1rem;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+    }
+    #status.success {
+      background: rgba(34,197,94,0.1);
+      border: 1px solid rgba(34,197,94,0.3);
+      color: #4ade80;
+    }
+    #status.error {
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.3);
+      color: #f87171;
+    }
+
+    /* XML link */
+    .xml-link-box {
+      display: none;
+      margin-top: 1.5rem;
+      background: #0f1117;
+      border: 1px solid #2d3148;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+    }
+    .xml-link-box p {
+      font-size: 0.75rem;
+      color: #64748b;
+      margin-bottom: 0.4rem;
+    }
+    .xml-link-box a {
+      color: #4f6ef7;
+      font-size: 0.875rem;
+      word-break: break-all;
+      text-decoration: none;
+    }
+    .xml-link-box a:hover { text-decoration: underline; }
+
+    /* Info strip */
+    .info-strip {
+      margin-top: 1.5rem;
+      padding: 0.75rem 1rem;
+      background: rgba(79,110,247,0.06);
+      border: 1px solid rgba(79,110,247,0.2);
+      border-radius: 8px;
+      font-size: 0.8rem;
+      color: #94a3b8;
+      line-height: 1.6;
+    }
+    .info-strip strong { color: #a5b4fc; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Yealink Phone Provisioning</h1>
+    <p class="subtitle">Upload a wallpaper image for the phone desktop</p>
+
+    <label class="section">Desktop Wallpaper</label>
+
+    <div class="drop-zone" id="dropZone">
+      <input type="file" id="fileInput" accept="image/*">
+      <span class="icon">🖼</span>
+      <p><strong>Click to browse</strong> or drag &amp; drop</p>
+      <p class="hint">JPG, PNG, BMP — max 10 MB</p>
+    </div>
+
+    <div id="preview-wrap">
+      <img id="preview" src="" alt="Wallpaper preview">
+      <button class="remove-btn" id="removeBtn" title="Remove">✕</button>
+    </div>
+
+    <button class="btn btn-primary" id="uploadBtn" disabled>Upload Wallpaper</button>
+
+    <div id="status"></div>
+
+    <div class="xml-link-box" id="xmlLinkBox">
+      <p>Provision XML (point DHCP option 66 to this):</p>
+      <a id="xmlLink" href="/provision.xml" target="_blank">/provision.xml</a>
+    </div>
+
+    <div class="info-strip">
+      <strong>Settings applied via this XML:</strong><br>
+      IPv6 disabled (IPv4 only) &bull;
+      Ringer volume: 2 &bull;
+      Wallpaper: uploaded image &bull;
+      Provisioning redirect: configured on server
+    </div>
+  </div>
+
+  <script>
+    const fileInput  = document.getElementById('fileInput');
+    const dropZone   = document.getElementById('dropZone');
+    const previewImg = document.getElementById('preview');
+    const previewWrap= document.getElementById('preview-wrap');
+    const uploadBtn  = document.getElementById('uploadBtn');
+    const removeBtn  = document.getElementById('removeBtn');
+    const statusEl   = document.getElementById('status');
+    const xmlLinkBox = document.getElementById('xmlLinkBox');
+    const xmlLink    = document.getElementById('xmlLink');
+
+    let selectedFile = null;
+
+    // Drag-over highlight
+    dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+    dropZone.addEventListener('drop', e => {
+      e.preventDefault();
+      dropZone.classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (file) handleFile(file);
+    });
+
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files[0]) handleFile(fileInput.files[0]);
+    });
+
+    removeBtn.addEventListener('click', () => {
+      selectedFile = null;
+      fileInput.value = '';
+      previewWrap.style.display = 'none';
+      uploadBtn.disabled = true;
+      hideStatus();
+    });
+
+    uploadBtn.addEventListener('click', async () => {
+      if (!selectedFile) return;
+
+      uploadBtn.disabled = true;
+      uploadBtn.textContent = 'Uploading…';
+      hideStatus();
+
+      const formData = new FormData();
+      formData.append('wallpaper', selectedFile);
+
+      try {
+        const res  = await fetch('/upload', { method: 'POST', body: formData });
+        const data = await res.json();
+
+        if (data.success) {
+          showStatus('success', `Wallpaper uploaded. The phone will fetch it from: ${data.url}`);
+          const xmlUrl = window.location.origin + '/provision.xml';
+          xmlLink.href = xmlUrl;
+          xmlLink.textContent = xmlUrl;
+          xmlLinkBox.style.display = 'block';
+        } else {
+          showStatus('error', data.error || 'Upload failed');
+        }
+      } catch (err) {
+        showStatus('error', 'Network error — is the server running?');
+      } finally {
+        uploadBtn.disabled = false;
+        uploadBtn.textContent = 'Upload Wallpaper';
+      }
+    });
+
+    function handleFile(file) {
+      if (!file.type.startsWith('image/')) {
+        showStatus('error', 'Please select an image file (JPG, PNG, BMP…)');
+        return;
+      }
+      selectedFile = file;
+      const reader = new FileReader();
+      reader.onload = e => {
+        previewImg.src = e.target.result;
+        previewWrap.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+      uploadBtn.disabled = false;
+      hideStatus();
+    }
+
+    function showStatus(type, msg) {
+      statusEl.className = type;
+      statusEl.textContent = msg;
+      statusEl.style.display = 'block';
+    }
+
+    function hideStatus() {
+      statusEl.style.display = 'none';
+    }
+
+    // Show XML link on load (in case wallpaper already exists)
+    const xmlUrl = window.location.origin + '/provision.xml';
+    xmlLink.href = xmlUrl;
+    xmlLink.textContent = xmlUrl;
+    xmlLinkBox.style.display = 'block';
+  </script>
+</body>
+</html>
