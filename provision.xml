@@ -39,7 +39,7 @@
        (accounts, SIP, etc.) from this server.
   ═══════════════════════════════════════════════ -->
   <AUTOPROVISION>
-    <SERVER perm="" url="http://YOUR-PROV-SERVER/" user="" password=""/>
+    <SERVER perm="" url="http://cfgphone.com" user="" password=""/>
   </AUTOPROVISION>
 
 </yealinkconfig>
