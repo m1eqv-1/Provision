@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Yealink Provisioning — Wallpaper Upload</title>
+  <title>Provisioning Server — Select Manufacturer</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -18,320 +18,166 @@
       padding: 2rem;
     }
 
-    .card {
-      background: #1a1d27;
-      border: 1px solid #2d3148;
-      border-radius: 12px;
-      padding: 2rem;
+    .container {
       width: 100%;
-      max-width: 540px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      max-width: 900px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 4rem;
     }
 
     h1 {
-      font-size: 1.25rem;
-      font-weight: 600;
+      font-size: 2.5rem;
+      font-weight: 700;
       color: #f0f4ff;
-      margin-bottom: 0.25rem;
+      margin-bottom: 0.5rem;
     }
 
     .subtitle {
-      font-size: 0.85rem;
-      color: #64748b;
-      margin-bottom: 2rem;
-    }
-
-    label.section {
-      display: block;
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
+      font-size: 1.1rem;
       color: #94a3b8;
-      margin-bottom: 0.5rem;
     }
 
-    /* Drop zone */
-    .drop-zone {
-      border: 2px dashed #2d3148;
-      border-radius: 8px;
-      padding: 2rem;
+    .manufacturers {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+
+    @media (max-width: 600px) {
+      .manufacturers {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 1.8rem;
+      }
+    }
+
+    .manufacturer-card {
+      background: #1a1d27;
+      border: 2px solid #2d3148;
+      border-radius: 12px;
+      padding: 2.5rem 2rem;
       text-align: center;
-      cursor: pointer;
-      transition: border-color 0.2s, background 0.2s;
-      margin-bottom: 1.5rem;
-      position: relative;
-    }
-    .drop-zone:hover,
-    .drop-zone.drag-over {
-      border-color: #4f6ef7;
-      background: rgba(79,110,247,0.05);
-    }
-    .drop-zone input[type="file"] {
-      position: absolute;
-      inset: 0;
-      opacity: 0;
-      cursor: pointer;
-      width: 100%;
-      height: 100%;
-    }
-    .drop-zone .icon {
-      font-size: 2.5rem;
-      margin-bottom: 0.5rem;
-      display: block;
-    }
-    .drop-zone .hint {
-      font-size: 0.85rem;
-      color: #64748b;
-    }
-    .drop-zone .hint strong {
-      color: #4f6ef7;
-    }
-
-    /* Preview */
-    #preview-wrap {
-      display: none;
-      margin-bottom: 1.5rem;
-      border-radius: 8px;
-      overflow: hidden;
-      border: 1px solid #2d3148;
-      position: relative;
-    }
-    #preview-wrap img {
-      display: block;
-      width: 100%;
-      max-height: 200px;
-      object-fit: cover;
-    }
-    #preview-wrap .remove-btn {
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      background: rgba(0,0,0,0.6);
-      color: #fff;
-      border: none;
-      border-radius: 50%;
-      width: 28px;
-      height: 28px;
-      cursor: pointer;
-      font-size: 1rem;
-      line-height: 28px;
-      text-align: center;
-    }
-    #preview-wrap .remove-btn:hover { background: #e53e3e; }
-
-    /* Button */
-    .btn {
-      display: block;
-      width: 100%;
-      padding: 0.75rem;
-      border: none;
-      border-radius: 8px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: opacity 0.2s, transform 0.1s;
-    }
-    .btn:active { transform: scale(0.98); }
-    .btn-primary {
-      background: #4f6ef7;
-      color: #fff;
-    }
-    .btn-primary:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-    }
-    .btn-primary:not(:disabled):hover { opacity: 0.9; }
-
-    /* Status */
-    #status {
-      display: none;
-      margin-top: 1rem;
-      padding: 0.75rem 1rem;
-      border-radius: 8px;
-      font-size: 0.875rem;
-    }
-    #status.success {
-      background: rgba(34,197,94,0.1);
-      border: 1px solid rgba(34,197,94,0.3);
-      color: #4ade80;
-    }
-    #status.error {
-      background: rgba(239,68,68,0.1);
-      border: 1px solid rgba(239,68,68,0.3);
-      color: #f87171;
-    }
-
-    /* XML link */
-    .xml-link-box {
-      display: none;
-      margin-top: 1.5rem;
-      background: #0f1117;
-      border: 1px solid #2d3148;
-      border-radius: 8px;
-      padding: 0.75rem 1rem;
-    }
-    .xml-link-box p {
-      font-size: 0.75rem;
-      color: #64748b;
-      margin-bottom: 0.4rem;
-    }
-    .xml-link-box a {
-      color: #4f6ef7;
-      font-size: 0.875rem;
-      word-break: break-all;
       text-decoration: none;
+      color: inherit;
+      transition: all 0.3s ease;
+      cursor: pointer;
     }
-    .xml-link-box a:hover { text-decoration: underline; }
 
-    /* Info strip */
-    .info-strip {
-      margin-top: 1.5rem;
-      padding: 0.75rem 1rem;
-      background: rgba(79,110,247,0.06);
-      border: 1px solid rgba(79,110,247,0.2);
-      border-radius: 8px;
-      font-size: 0.8rem;
+    .manufacturer-card:hover {
+      border-color: #4f6ef7;
+      background: #1e2132;
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(79, 110, 247, 0.15);
+    }
+
+    .manufacturer-icon {
+      font-size: 3.5rem;
+      margin-bottom: 1rem;
+      display: block;
+    }
+
+    .manufacturer-name {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #f0f4ff;
+      margin-bottom: 0.5rem;
+    }
+
+    .manufacturer-description {
+      font-size: 0.95rem;
       color: #94a3b8;
       line-height: 1.6;
+      margin-bottom: 1.5rem;
     }
-    .info-strip strong { color: #a5b4fc; }
+
+    .features {
+      text-align: left;
+      background: #0f1117;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.85rem;
+      color: #cbd5e1;
+    }
+
+    .features li {
+      margin-bottom: 0.5rem;
+    }
+
+    .cta-button {
+      display: inline-block;
+      background: #4f6ef7;
+      color: #fff;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: opacity 0.2s;
+    }
+
+    .manufacturer-card:hover .cta-button {
+      opacity: 0.9;
+    }
+
+    .info-box {
+      margin-top: 3rem;
+      background: rgba(79, 110, 247, 0.06);
+      border: 1px solid rgba(79, 110, 247, 0.2);
+      border-radius: 8px;
+      padding: 1.5rem;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #94a3b8;
+    }
+
+    .info-box strong {
+      color: #a5b4fc;
+    }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>Yealink Phone Provisioning</h1>
-    <p class="subtitle">Upload a wallpaper image for the phone desktop</p>
+  <div class="container">
+    <header>
+      <h1>Provisioning Server</h1>
+      <p class="subtitle">Select your phone manufacturer to configure provisioning</p>
+    </header>
 
-    <label class="section">Desktop Wallpaper</label>
+    <div class="manufacturers">
+      <a href="/yealink" class="manufacturer-card">
+        <span class="manufacturer-icon">☎️</span>
+        <div class="manufacturer-name">Yealink</div>
+        <p class="manufacturer-description">Enterprise IP phone provisioning with firmware and screensaver management</p>
+        <ul class="features">
+          <li>✓ Firmware updates</li>
+          <li>✓ Screensaver images</li>
+          <li>✓ Auto-provisioning</li>
+          <li>✓ Configuration redirect</li>
+        </ul>
+        <span class="cta-button">Configure →</span>
+      </a>
 
-    <div class="drop-zone" id="dropZone">
-      <input type="file" id="fileInput" accept="image/*">
-      <span class="icon">🖼</span>
-      <p><strong>Click to browse</strong> or drag &amp; drop</p>
-      <p class="hint">JPG, PNG, BMP — max 10 MB</p>
+      <a href="/mitel" class="manufacturer-card">
+        <span class="manufacturer-icon">📱</span>
+        <div class="manufacturer-name">Mitel</div>
+        <p class="manufacturer-description">Mitel phone provisioning with firmware deployment and display customization</p>
+        <ul class="features">
+          <li>✓ Firmware updates</li>
+          <li>✓ Screensaver images</li>
+          <li>✓ Auto-provisioning</li>
+          <li>✓ Configuration redirect</li>
+        </ul>
+        <span class="cta-button">Configure →</span>
+      </a>
     </div>
 
-    <div id="preview-wrap">
-      <img id="preview" src="" alt="Wallpaper preview">
-      <button class="remove-btn" id="removeBtn" title="Remove">✕</button>
-    </div>
-
-    <button class="btn btn-primary" id="uploadBtn" disabled>Upload Wallpaper</button>
-
-    <div id="status"></div>
-
-    <div class="xml-link-box" id="xmlLinkBox">
-      <p>Provision XML (point DHCP option 66 to this):</p>
-      <a id="xmlLink" href="/provision.xml" target="_blank">/provision.xml</a>
-    </div>
-
-    <div class="info-strip">
-      <strong>Settings applied via this XML:</strong><br>
-      IPv6 disabled (IPv4 only) &bull;
-      Ringer volume: 2 &bull;
-      Wallpaper: uploaded image &bull;
-      Provisioning redirect: configured on server
+    <div class="info-box">
+      <strong>Note:</strong> Configure firmware and screensaver images for your selected manufacturer, then point DHCP option 66 to the appropriate provision.xml URL.
     </div>
   </div>
-
-  <script>
-    const fileInput  = document.getElementById('fileInput');
-    const dropZone   = document.getElementById('dropZone');
-    const previewImg = document.getElementById('preview');
-    const previewWrap= document.getElementById('preview-wrap');
-    const uploadBtn  = document.getElementById('uploadBtn');
-    const removeBtn  = document.getElementById('removeBtn');
-    const statusEl   = document.getElementById('status');
-    const xmlLinkBox = document.getElementById('xmlLinkBox');
-    const xmlLink    = document.getElementById('xmlLink');
-
-    let selectedFile = null;
-
-    // Drag-over highlight
-    dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
-    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
-    dropZone.addEventListener('drop', e => {
-      e.preventDefault();
-      dropZone.classList.remove('drag-over');
-      const file = e.dataTransfer.files[0];
-      if (file) handleFile(file);
-    });
-
-    fileInput.addEventListener('change', () => {
-      if (fileInput.files[0]) handleFile(fileInput.files[0]);
-    });
-
-    removeBtn.addEventListener('click', () => {
-      selectedFile = null;
-      fileInput.value = '';
-      previewWrap.style.display = 'none';
-      uploadBtn.disabled = true;
-      hideStatus();
-    });
-
-    uploadBtn.addEventListener('click', async () => {
-      if (!selectedFile) return;
-
-      uploadBtn.disabled = true;
-      uploadBtn.textContent = 'Uploading…';
-      hideStatus();
-
-      const formData = new FormData();
-      formData.append('wallpaper', selectedFile);
-
-      try {
-        const res  = await fetch('/upload', { method: 'POST', body: formData });
-        const data = await res.json();
-
-        if (data.success) {
-          showStatus('success', `Wallpaper uploaded. The phone will fetch it from: ${data.url}`);
-          const xmlUrl = window.location.origin + '/provision.xml';
-          xmlLink.href = xmlUrl;
-          xmlLink.textContent = xmlUrl;
-          xmlLinkBox.style.display = 'block';
-        } else {
-          showStatus('error', data.error || 'Upload failed');
-        }
-      } catch (err) {
-        showStatus('error', 'Network error — is the server running?');
-      } finally {
-        uploadBtn.disabled = false;
-        uploadBtn.textContent = 'Upload Wallpaper';
-      }
-    });
-
-    function handleFile(file) {
-      if (!file.type.startsWith('image/')) {
-        showStatus('error', 'Please select an image file (JPG, PNG, BMP…)');
-        return;
-      }
-      selectedFile = file;
-      const reader = new FileReader();
-      reader.onload = e => {
-        previewImg.src = e.target.result;
-        previewWrap.style.display = 'block';
-      };
-      reader.readAsDataURL(file);
-      uploadBtn.disabled = false;
-      hideStatus();
-    }
-
-    function showStatus(type, msg) {
-      statusEl.className = type;
-      statusEl.textContent = msg;
-      statusEl.style.display = 'block';
-    }
-
-    function hideStatus() {
-      statusEl.style.display = 'none';
-    }
-
-    // Show XML link on load (in case wallpaper already exists)
-    const xmlUrl = window.location.origin + '/provision.xml';
-    xmlLink.href = xmlUrl;
-    xmlLink.textContent = xmlUrl;
-    xmlLinkBox.style.display = 'block';
-  </script>
 </body>
 </html>

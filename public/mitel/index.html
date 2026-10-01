@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mitel Provisioning — Firmware & Screensaver</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-bottom: 2rem;
+      color: #4f6ef7;
+      text-decoration: none;
+      font-size: 0.95rem;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #f0f4ff;
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      font-size: 1rem;
+      color: #94a3b8;
+      margin-bottom: 2rem;
+    }
+
+    .section {
+      background: #1a1d27;
+      border: 1px solid #2d3148;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .section h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #f0f4ff;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .section-icon {
+      font-size: 1.5rem;
+    }
+
+    label.section-label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #94a3b8;
+      margin-bottom: 0.75rem;
+    }
+
+    .drop-zone {
+      border: 2px dashed #2d3148;
+      border-radius: 8px;
+      padding: 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+
+    .drop-zone:hover,
+    .drop-zone.drag-over {
+      border-color: #4f6ef7;
+      background: rgba(79, 110, 247, 0.05);
+    }
+
+    .drop-zone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .drop-zone .icon {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .drop-zone .hint {
+      font-size: 0.85rem;
+      color: #64748b;
+    }
+
+    .drop-zone .hint strong {
+      color: #4f6ef7;
+    }
+
+    .preview-wrap {
+      display: none;
+      margin-bottom: 1.5rem;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #2d3148;
+      position: relative;
+    }
+
+    .preview-wrap img {
+      display: block;
+      width: 100%;
+      max-height: 150px;
+      object-fit: cover;
+    }
+
+    .preview-wrap.file-preview {
+      background: #0f1117;
+      padding: 1rem;
+    }
+
+    .preview-wrap .file-info {
+      font-size: 0.9rem;
+      color: #cbd5e1;
+      word-break: break-all;
+    }
+
+    .preview-wrap .remove-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(0, 0, 0, 0.6);
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      cursor: pointer;
+      font-size: 1rem;
+      line-height: 28px;
+      text-align: center;
+    }
+
+    .preview-wrap .remove-btn:hover {
+      background: #e53e3e;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      flex: 1;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary {
+      background: #4f6ef7;
+      color: #fff;
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .btn-primary:not(:disabled):hover {
+      opacity: 0.9;
+    }
+
+    .btn-secondary {
+      background: #2d3148;
+      color: #cbd5e1;
+    }
+
+    .btn-secondary:hover {
+      background: #3d4158;
+    }
+
+    .status {
+      display: none;
+      margin-top: 1rem;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+    }
+
+    .status.success {
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      color: #4ade80;
+    }
+
+    .status.error {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #f87171;
+    }
+
+    .xml-link-box {
+      display: none;
+      background: #0f1117;
+      border: 1px solid #2d3148;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .xml-link-box p {
+      font-size: 0.75rem;
+      color: #64748b;
+      margin-bottom: 0.4rem;
+    }
+
+    .xml-link-box a {
+      color: #4f6ef7;
+      font-size: 0.9rem;
+      word-break: break-all;
+      text-decoration: none;
+    }
+
+    .xml-link-box a:hover {
+      text-decoration: underline;
+    }
+
+    .info-strip {
+      background: rgba(79, 110, 247, 0.06);
+      border: 1px solid rgba(79, 110, 247, 0.2);
+      border-radius: 8px;
+      padding: 1.5rem;
+      font-size: 0.85rem;
+      color: #94a3b8;
+      line-height: 1.8;
+    }
+
+    .info-strip strong {
+      color: #a5b4fc;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+
+    @media (max-width: 600px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+
+      .button-group {
+        flex-direction: column;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="/" class="back-link">← Back to Manufacturers</a>
+
+    <h1>Mitel Phone Provisioning</h1>
+    <p class="subtitle">Manage firmware, screensaver images, and provision configuration</p>
+
+    <div class="grid-2">
+      <!-- Firmware Section -->
+      <div class="section">
+        <h2><span class="section-icon">⚙️</span> Firmware Update</h2>
+
+        <label class="section-label">Upload Firmware File</label>
+
+        <div class="drop-zone" id="firmwareDropZone">
+          <input type="file" id="firmwareInput" accept=".bin,.zip,.hex">
+          <span class="icon">📦</span>
+          <p><strong>Click to browse</strong> or drag &amp; drop</p>
+          <p class="hint">.bin, .zip, .hex — max 100 MB</p>
+        </div>
+
+        <div id="firmwarePreview" class="preview-wrap file-preview">
+          <div class="file-info" id="firmwareInfo"></div>
+          <button class="remove-btn" id="removeFirmwareBtn" title="Remove">✕</button>
+        </div>
+
+        <div class="button-group">
+          <button class="btn btn-primary" id="uploadFirmwareBtn" disabled>Upload Firmware</button>
+        </div>
+
+        <div class="status" id="firmwareStatus"></div>
+      </div>
+
+      <!-- Screensaver Section -->
+      <div class="section">
+        <h2><span class="section-icon">🖼️</span> Screensaver Image</h2>
+
+        <label class="section-label">Upload Display Image</label>
+
+        <div class="drop-zone" id="screensaverDropZone">
+          <input type="file" id="screensaverInput" accept="image/*">
+          <span class="icon">🎨</span>
+          <p><strong>Click to browse</strong> or drag &amp; drop</p>
+          <p class="hint">JPG, PNG, BMP — max 100 MB</p>
+        </div>
+
+        <div id="screensaverPreview" class="preview-wrap">
+          <img id="screensaverImg" src="" alt="Screensaver preview">
+          <button class="remove-btn" id="removeScreensaverBtn" title="Remove">✕</button>
+        </div>
+
+        <div class="button-group">
+          <button class="btn btn-primary" id="uploadScreensaverBtn" disabled>Upload Screensaver</button>
+        </div>
+
+        <div class="status" id="screensaverStatus"></div>
+      </div>
+    </div>
+
+    <!-- Provision XML Link -->
+    <div class="section">
+      <h2><span class="section-icon">📋</span> Provision Configuration</h2>
+
+      <div class="xml-link-box" id="xmlLinkBox">
+        <p>Point DHCP option 66 to this XML file:</p>
+        <a id="xmlLink" href="/mitel/provision.xml" target="_blank">/mitel/provision.xml</a>
+      </div>
+
+      <div class="info-strip">
+        <strong>Configuration includes:</strong><br>
+        • Screensaver image from upload<br>
+        • Firmware provisioning URL<br>
+        • Audio settings (ringer volume: 2)<br>
+        • Redirect to provision platform: <code id="provServerUrl"></code>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const BASE_URL = window.location.origin;
+
+    // Firmware handling
+    const firmwareInput = document.getElementById('firmwareInput');
+    const firmwareDropZone = document.getElementById('firmwareDropZone');
+    const firmwarePreview = document.getElementById('firmwarePreview');
+    const firmwareInfo = document.getElementById('firmwareInfo');
+    const uploadFirmwareBtn = document.getElementById('uploadFirmwareBtn');
+    const removeFirmwareBtn = document.getElementById('removeFirmwareBtn');
+    const firmwareStatus = document.getElementById('firmwareStatus');
+
+    let selectedFirmware = null;
+
+    // Screensaver handling
+    const screensaverInput = document.getElementById('screensaverInput');
+    const screensaverDropZone = document.getElementById('screensaverDropZone');
+    const screensaverPreview = document.getElementById('screensaverPreview');
+    const screensaverImg = document.getElementById('screensaverImg');
+    const uploadScreensaverBtn = document.getElementById('uploadScreensaverBtn');
+    const removeScreensaverBtn = document.getElementById('removeScreensaverBtn');
+    const screensaverStatus = document.getElementById('screensaverStatus');
+
+    let selectedScreensaver = null;
+
+    // Misc
+    const xmlLinkBox = document.getElementById('xmlLinkBox');
+    const xmlLink = document.getElementById('xmlLink');
+    const provServerUrl = document.getElementById('provServerUrl');
+
+    // Setup drag-and-drop for firmware
+    firmwareDropZone.addEventListener('dragover', e => { e.preventDefault(); firmwareDropZone.classList.add('drag-over'); });
+    firmwareDropZone.addEventListener('dragleave', () => firmwareDropZone.classList.remove('drag-over'));
+    firmwareDropZone.addEventListener('drop', e => {
+      e.preventDefault();
+      firmwareDropZone.classList.remove('drag-over');
+      if (e.dataTransfer.files[0]) handleFirmware(e.dataTransfer.files[0]);
+    });
+    firmwareInput.addEventListener('change', () => { if (firmwareInput.files[0]) handleFirmware(firmwareInput.files[0]); });
+
+    // Setup drag-and-drop for screensaver
+    screensaverDropZone.addEventListener('dragover', e => { e.preventDefault(); screensaverDropZone.classList.add('drag-over'); });
+    screensaverDropZone.addEventListener('dragleave', () => screensaverDropZone.classList.remove('drag-over'));
+    screensaverDropZone.addEventListener('drop', e => {
+      e.preventDefault();
+      screensaverDropZone.classList.remove('drag-over');
+      if (e.dataTransfer.files[0]) handleScreensaver(e.dataTransfer.files[0]);
+    });
+    screensaverInput.addEventListener('change', () => { if (screensaverInput.files[0]) handleScreensaver(screensaverInput.files[0]); });
+
+    removeFirmwareBtn.addEventListener('click', () => {
+      selectedFirmware = null;
+      firmwareInput.value = '';
+      firmwarePreview.style.display = 'none';
+      uploadFirmwareBtn.disabled = true;
+      hideStatus(firmwareStatus);
+    });
+
+    removeScreensaverBtn.addEventListener('click', () => {
+      selectedScreensaver = null;
+      screensaverInput.value = '';
+      screensaverPreview.style.display = 'none';
+      uploadScreensaverBtn.disabled = true;
+      hideStatus(screensaverStatus);
+    });
+
+    uploadFirmwareBtn.addEventListener('click', () => uploadFile(selectedFirmware, '/mitel/upload-firmware', 'firmware', firmwareStatus, uploadFirmwareBtn));
+    uploadScreensaverBtn.addEventListener('click', () => uploadFile(selectedScreensaver, '/mitel/upload-screensaver', 'screensaver', screensaverStatus, uploadScreensaverBtn));
+
+    function handleFirmware(file) {
+      selectedFirmware = file;
+      firmwareInfo.textContent = `📦 ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+      firmwarePreview.style.display = 'block';
+      uploadFirmwareBtn.disabled = false;
+      hideStatus(firmwareStatus);
+    }
+
+    function handleScreensaver(file) {
+      if (!file.type.startsWith('image/')) {
+        showStatus(screensaverStatus, 'error', 'Please select an image file');
+        return;
+      }
+      selectedScreensaver = file;
+      const reader = new FileReader();
+      reader.onload = e => {
+        screensaverImg.src = e.target.result;
+        screensaverPreview.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+      uploadScreensaverBtn.disabled = false;
+      hideStatus(screensaverStatus);
+    }
+
+    async function uploadFile(file, endpoint, type, statusEl, btnEl) {
+      if (!file) return;
+
+      btnEl.disabled = true;
+      btnEl.textContent = 'Uploading…';
+      hideStatus(statusEl);
+
+      const formData = new FormData();
+      formData.append(type, file);
+
+      try {
+        const res = await fetch(endpoint, { method: 'POST', body: formData });
+        const data = await res.json();
+
+        if (data.success) {
+          showStatus(statusEl, 'success', `${type.charAt(0).toUpperCase() + type.slice(1)} uploaded successfully`);
+        } else {
+          showStatus(statusEl, 'error', data.error || 'Upload failed');
+        }
+      } catch (err) {
+        showStatus(statusEl, 'error', 'Network error — is the server running?');
+      } finally {
+        btnEl.disabled = false;
+        btnEl.textContent = `Upload ${type.charAt(0).toUpperCase() + type.slice(1)}`;
+      }
+    }
+
+    function showStatus(el, type, msg) {
+      el.className = `status ${type}`;
+      el.textContent = msg;
+      el.style.display = 'block';
+    }
+
+    function hideStatus(el) {
+      el.style.display = 'none';
+    }
+
+    // Initialize
+    const xmlUrl = BASE_URL + '/mitel/provision.xml';
+    xmlLink.href = xmlUrl;
+    xmlLink.textContent = xmlUrl;
+    xmlLinkBox.style.display = 'block';
+    provServerUrl.textContent = 'http://YOUR-PROV-SERVER/';
+  </script>
+</body>
+</html>
